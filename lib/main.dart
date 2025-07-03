@@ -1,30 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-import 'package:vox_home/presentation/providers/providers.dart';
-import 'config/config.dart';
+import 'service.dart';
 
-void main() {
-  runApp(
-    const ProviderScope(
-      child: MainApp(),
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+
+  final micStatus = await Permission.microphone.request();
+  if (!micStatus.isGranted) {
+    // Aquí podrías mostrar un diálogo o cerrar la app
+    // Pero al menos ya no se quejará de STT no disponible
+  }
+
+  await FlutterBackgroundService().configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: onStart,
+      isForegroundMode: true,
+      autoStart: true,
+      
     ),
+    iosConfiguration: IosConfiguration(autoStart: true),
   );
+  FlutterBackgroundService().startService();
+
+  runApp(const _HeadlessApp());
+
+  // Cerramos inmediatamente la UI de Flutter (no habrá pantalla blanca ni icono)
+  SystemNavigator.pop();
 }
 
-class MainApp extends ConsumerWidget {
-  const MainApp({super.key});
 
+/// Un widget completamente vacío, solo para que Flutter cree el contexto.
+/// No se muestra nada porque justo después llamamos a SystemNavigator.pop().
+class _HeadlessApp extends StatelessWidget {
+  const _HeadlessApp();
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-
-    final AppTheme appTheme = ref.watch(themeNotifierProvider);
-
-    return MaterialApp.router(
-      routerConfig: appRouter,
-      debugShowCheckedModeBanner: false,
-      title: 'DeepSeek VUI',
-      theme: appTheme.getTheme(),
-    );
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
   }
 }

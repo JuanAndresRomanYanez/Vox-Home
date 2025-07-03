@@ -32,6 +32,8 @@
 	<string>Permission required to record audio for speech recognition</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Permission required to record audio for speech recognition</string>
+	<key>NSMotionUsageDescription</key>
+	<string>This app requires access to the barometer to provide altitude information.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
