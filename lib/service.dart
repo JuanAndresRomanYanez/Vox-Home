@@ -9,6 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'services/speech_service.dart';
 
+// @pragma('vm:entry-point')
 Future<void> onStart(ServiceInstance service) async {
   await dotenv.load(fileName: ".env");
   final webhookUrl = dotenv.env['DIALOGFLOW_URL']?.trim();
